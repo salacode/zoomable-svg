@@ -303,6 +303,9 @@ class ZoomableSvg extends Component {
     }) => {
       checkDoubleTap(timeStamp, clientX, clientY, shiftKey);
     };
+    this.offsetX = 0;
+    this.offsetY = 0;
+    this.viewRef = React.createRef();
     this._panResponder = PanResponder.create({
       onPanResponderGrant: noop,
       onPanResponderTerminate: noop,
@@ -317,14 +320,14 @@ class ZoomableSvg extends Component {
         const { length } = touches;
         if (length === 1) {
           const [{ pageX, pageY }] = touches;
-          this.processTouch(pageX, pageY);
+          this.processTouch(pageX - this.offsetX, pageY - this.offsetY);
         } else if (length === 2) {
           const [touch1, touch2] = touches;
           this.processPinch(
-            touch1.pageX,
-            touch1.pageY,
-            touch2.pageX,
-            touch2.pageY,
+            touch1.pageX - this.offsetX,
+            touch1.pageY - this.offsetY,
+            touch2.pageX - this.offsetX,
+            touch2.pageY - this.offsetY,
           );
         } else {
           return;
@@ -534,6 +537,15 @@ class ZoomableSvg extends Component {
         onMouseUp: this.onMouseUp,
         onWheel: this.onWheel,
         style: style,
+        ref: this.viewRef,
+        onLayout: evt => {
+          setTimeout(() => { // On iOS, measure() produces weird pageX offsets if triggered immediately.
+            this.viewRef.current.measure((x, y, width, height, pageX, pageY) => {
+              this.offsetX = pageX;
+              this.offsetY = pageY;
+            })
+          }, 500);
+        }
       },
       React.createElement(Child, {
         transform: getZoomTransform(this.state),
