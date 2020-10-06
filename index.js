@@ -1,5 +1,12 @@
 const React = require('react');
 let RN;
+
+/* Commented out original solution of conditionally load modules.
+   Current version of React-native packs modules of all the require()
+   lines even from a line like this: `if (false) require(...);`
+   That makes a project that does not have `react-native-web` installed
+   as dependency to throw error.
+
 try {
   RN = require('react-native');
   if (RN.Platform.OS === 'web') {
@@ -10,6 +17,14 @@ try {
 }
 if (!RN) {
   throw new Error('failed to import react-native(-web)');
+}
+*/
+RN = require('react-native');
+if (RN.Platform.OS === 'web') {
+  throw new Error('Platform: "web" detected. This library supports it but is '
+  + 'not properly prepared for dynammically require() the appropriate '
+  + 'module. See GIT repo of the original author for an update. (This lib is '
+  + 'just a fork.)');
 }
 
 const { View, PanResponder, Platform } = RN;
