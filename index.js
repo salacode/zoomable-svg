@@ -461,13 +461,22 @@ class ZoomableSvg extends Component {
       } = this.state;
       const { constrain } = this.props;
 
-      const touchZoom = distance / initialDistance;
+      let touchZoom = distance / initialDistance;
       const dx = x - initialX;
       const dy = y - initialY;
 
+      let zoom = initialZoom * touchZoom;
+      const { constraints: { scaleExtent: [minZoom, maxZoom] } } = this.state;
+      const constrainedZoom = Math.max(minZoom, Math.min(maxZoom, zoom));
+      if (constrainedZoom !== zoom) {
+        // Zoom limit has reached.
+        // TODO: this is a HACK to avoid unwanted movement when pinch distance is changing.
+        // Still allows movement according to the slip of the pinch center point.
+        zoom = constrainedZoom;
+        touchZoom = constrainedZoom / initialZoom;
+      }
       const left = (initialLeft + dx - x) * touchZoom + x;
       const top = (initialTop + dy - y) * touchZoom + y;
-      const zoom = initialZoom * touchZoom;
 
       const nextState = {
         zoom,
