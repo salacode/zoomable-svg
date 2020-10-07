@@ -540,7 +540,7 @@ class ZoomableSvg extends Component {
         ref: this.viewRef,
         onLayout: evt => {
           setTimeout(() => { // On iOS, measure() produces weird pageX offsets if triggered immediately.
-            if (this.viewRef) this.viewRef.current.measure((x, y, width, height, pageX, pageY) => {
+            if (this.viewRef.current) this.viewRef.current.measure((x, y, width, height, pageX, pageY) => {
               this.offsetX = pageX;
               this.offsetY = pageY;
             })
